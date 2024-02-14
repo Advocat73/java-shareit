@@ -9,7 +9,7 @@ import ru.practicum.shareit.user.User;
  */
 @Data
 public class Item {
-    long id;                //уникальный идентификатор вещи
+    Long id;                //уникальный идентификатор вещи
     String name;            //краткое название;
     String description;     //развёрнутое описание
     boolean available;      //статус о том, доступна или нет вещь для аренды
