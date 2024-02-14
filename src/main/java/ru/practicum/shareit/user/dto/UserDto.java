@@ -1,4 +1,4 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.user.dto;
 
 public class UserDto {
     long id;            //уникальный идентификатор пользователя
