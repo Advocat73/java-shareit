@@ -19,6 +19,14 @@ class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User getUser(Long userId) {
+        User user = repository.findUserById(userId);
+        if (user == null)
+            throw new NotFoundException("Нет пользователя с ID: " + userId);
+        return user;
+    }
+
+    @Override
     public User saveUser(User user) {
         long l = -1;
         if (repository.existEmail(user, l))
@@ -33,5 +41,10 @@ class UserServiceImpl implements UserService {
         if (repository.existEmail(user, userId))
             throw new DataConflictException("Пользователь с email: " + user.getEmail() + " уже существует");
         return repository.update(user, userId);
+    }
+
+    @Override
+    public void deleteUser(Long userId) {
+        repository.remove(userId);
     }
 }

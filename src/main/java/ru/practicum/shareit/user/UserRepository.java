@@ -11,7 +11,7 @@ interface UserRepository {
 
     User update(User user, Long userId);
 
-    void remove(User user);
+    void remove(Long userId);
 
     boolean existEmail(User user, Long userId);
 }

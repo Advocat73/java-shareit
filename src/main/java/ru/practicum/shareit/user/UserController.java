@@ -21,6 +21,11 @@ public class UserController {
         return userService.getAllUsers();
     }
 
+    @GetMapping("/{userId}")
+    public User getUser(@PathVariable Long userId) {
+        return userService.getUser(userId);
+    }
+
     @PostMapping
     public User saveNewUser(@Valid @RequestBody User user) {
         return userService.saveUser(user);
@@ -29,5 +34,10 @@ public class UserController {
     @PatchMapping("/{userId}")
     public User update(@RequestBody User user, @PathVariable Long userId)  {
         return userService.updateUser(user, userId);
+    }
+
+    @DeleteMapping("/{userId}")
+    public void deleteUser(@PathVariable Long userId) {
+        userService.deleteUser(userId);
     }
 }

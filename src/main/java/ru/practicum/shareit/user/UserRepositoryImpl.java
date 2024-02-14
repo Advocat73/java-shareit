@@ -10,6 +10,7 @@ import java.util.Objects;
 @Repository
 public class UserRepositoryImpl implements UserRepository {
     private final List<User> users = new ArrayList<>();
+    private long userCounter = 0;
 
     @Override
     public List<User> findAll() {
@@ -45,8 +46,7 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public void remove(User user) {
-        Long userId = user.getId();
+    public void remove(Long userId) {
         for (User u : users)
             if (u.getId().equals(userId)) {
                 users.remove(u);
@@ -63,11 +63,6 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     private Long getId() {
-        long lastId = users
-                .stream()
-                .mapToLong(User::getId)
-                .max()
-                .orElse(0);
-        return lastId + 1;
+        return ++userCounter;
     }
 }
