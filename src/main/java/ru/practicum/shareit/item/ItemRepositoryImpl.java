@@ -83,8 +83,7 @@ public class ItemRepositoryImpl implements ItemRepository {
         if (items.containsKey(userId)) {
             List<Item> userItems = items.get(userId);
             userItems.removeIf(item -> item.getId().equals(itemId));
-        }
-        else throw new NotFoundException("У пользователя с Id " + userId + " нет вещи с Id: " + itemId);
+        } else throw new NotFoundException("У пользователя с Id " + userId + " нет вещи с Id: " + itemId);
     }
 
     private Long getId() {
