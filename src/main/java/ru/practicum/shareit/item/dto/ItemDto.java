@@ -1,11 +1,7 @@
 package ru.practicum.shareit.item.dto;
 
 import lombok.Data;
-import ru.practicum.shareit.user.User;
 
-/**
- * TODO Sprint add-controllers.
- */
 @Data
 public class ItemDto {
     Long id;                //уникальный идентификатор вещи

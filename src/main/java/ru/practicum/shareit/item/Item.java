@@ -2,16 +2,11 @@ package ru.practicum.shareit.item;
 
 import jdk.jfr.BooleanFlag;
 import lombok.Data;
-import lombok.NonNull;
 import ru.practicum.shareit.request.ItemRequest;
-import ru.practicum.shareit.user.User;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-/**
- * TODO Sprint add-controllers.
- */
 @Data
 public class Item {
     Long id;                //уникальный идентификатор вещи
@@ -22,7 +17,7 @@ public class Item {
     @NotNull
     @BooleanFlag
     Boolean available;      //статус о том, доступна или нет вещь для аренды
-    Long  ownerId;          //владелец вещи
+    Long ownerId;          //владелец вещи
     ItemRequest request;    /*если вещь была создана по запросу другого пользователя,
                             то в этом поле будет храниться ссылка на соответствующий запрос*/
 }

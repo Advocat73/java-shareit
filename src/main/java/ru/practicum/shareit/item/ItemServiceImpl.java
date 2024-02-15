@@ -8,6 +8,7 @@ import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.UserService;
 
 import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
