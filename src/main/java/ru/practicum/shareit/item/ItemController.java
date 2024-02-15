@@ -3,6 +3,7 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -10,35 +11,35 @@ import java.util.List;
  */
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/items")
+@RequestMapping(path = "/items")
 public class ItemController {
     private final ItemService itemService;
 
     @GetMapping
-    public List<Item> get(@RequestHeader("X-Later-User-Id") Long userId) {
+    public List<Item> get(@RequestHeader("X-Sharer-User-Id") Long userId) {
         return itemService.getItems(userId);
     }
 
     @GetMapping("/{itemId}")
-    public Item getItem(@RequestHeader("X-Later-User-Id") Long userId,
+    public Item getItem(@RequestHeader("X-Sharer-User-Id") Long userId,
                            @PathVariable Long itemId) {
         return itemService.getItem(userId, itemId);
     }
 
     @PostMapping
-    public Item add(@RequestHeader("X-Later-User-Id") Long userId,
-                    @RequestBody Item item) {
+    public Item add(@RequestHeader("X-Sharer-User-Id") Long userId,
+                    @Valid @RequestBody Item item) {
         return itemService.addNewItem(userId, item);
     }
 
     @PatchMapping
-    public Item update(@RequestHeader("X-Later-User-Id") Long userId,
+    public Item update(@RequestHeader("X-Sharer-User-Id") Long userId,
                        @RequestBody Item item) {
         return itemService.updateItem(userId, item);
     }
 
     @DeleteMapping("/{itemId}")
-    public void deleteItem(@RequestHeader("X-Later-User-Id") Long userId,
+    public void deleteItem(@RequestHeader("X-Sharer-User-Id") Long userId,
                            @PathVariable Long itemId) {
         itemService.deleteItem(userId, itemId);
     }

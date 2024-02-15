@@ -8,7 +8,7 @@ interface ItemRepository {
 
     Item findItemByUserId(Long userId, Long itemId);
 
-    Item save(Long userId, Item item);
+    Item save(Item item);
 
     Item update(Long userId, Item item);
 

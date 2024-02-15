@@ -2,6 +2,8 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.user.UserService;
 
 import java.util.List;
 
@@ -9,6 +11,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
+    private final UserService userService;
 
     @Override
     public List<Item> getItems(Long userId) {
@@ -22,13 +25,15 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Item addNewItem(Long userId, Item item) {
-        //item.setUserId(userId);
-        return itemRepository.save(userId, item);
+        if (userService.getUser(userId) == null)
+            throw new NotFoundException("Нет пользователя с ID: " + userId);
+        item.setOwnerId(userId);
+        return itemRepository.save(item);
     }
 
     @Override
     public Item updateItem(Long userId, Item item) {
-        if (!userId.equals(item.getOwner().getId()))
+        if (!userId.equals(item.getOwnerId()))
             return null;
         return itemRepository.update(userId, item);
     }

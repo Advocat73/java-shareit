@@ -7,6 +7,7 @@ import java.util.*;
 @Repository
 public class ItemRepositoryImpl implements ItemRepository{
     private final Map<Long, List<Item>> items = new HashMap<>();
+    long itemCounter = 0;
 
     @Override
     public List<Item> findByUserId(Long userId) {
@@ -24,9 +25,9 @@ public class ItemRepositoryImpl implements ItemRepository{
     }
 
     @Override
-    public Item save(Long userId, Item item) {
+    public Item save(Item item) {
         item.setId(getId());
-        items.computeIfAbsent(userId, k -> new ArrayList<>()).add(item);
+        items.computeIfAbsent(item.getOwnerId(), k -> new ArrayList<>()).add(item);
         return item;
     }
 
@@ -36,7 +37,7 @@ public class ItemRepositoryImpl implements ItemRepository{
         if (oldItem != null) {
             oldItem.setName(item.getName());
             oldItem.setDescription(item.getDescription());
-            oldItem.setAvailable(item.isAvailable());
+            oldItem.setAvailable(item.getAvailable());
         }
         return  oldItem;
     }
@@ -50,13 +51,7 @@ public class ItemRepositoryImpl implements ItemRepository{
     }
 
     private Long getId() {
-        Long lastId = items.values()
-                .stream()
-                .flatMap(Collection::stream)
-                .mapToLong(Item::getId)
-                .max()
-                .orElse(0);
-        return lastId + 1;
+        return ++itemCounter;
     }
 }
 
