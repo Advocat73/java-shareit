@@ -6,7 +6,11 @@ interface ItemRepository {
 
     List<Item> findByUserId(Long userId);
 
-    Item findItemByUserId(Long userId, Long itemId);
+    Item findItemByUserIdAndItemId(Long userId, Long itemId);
+
+    Item findItem(Long itemId);
+
+    List<Item> searchItemBySustring(String subStr);
 
     Item save(Item item);
 

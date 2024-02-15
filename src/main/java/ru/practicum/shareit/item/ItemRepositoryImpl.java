@@ -7,7 +7,7 @@ import ru.practicum.shareit.exception.NotFoundException;
 import java.util.*;
 
 @Repository
-public class ItemRepositoryImpl implements ItemRepository{
+public class ItemRepositoryImpl implements ItemRepository {
     private final Map<Long, List<Item>> items = new HashMap<>();
     long itemCounter = 0;
 
@@ -17,13 +17,35 @@ public class ItemRepositoryImpl implements ItemRepository{
     }
 
     @Override
-    public Item findItemByUserId(Long userId, Long itemId) {
+    public Item findItemByUserIdAndItemId(Long userId, Long itemId) {
         List<Item> items = findByUserId(userId);
         for (Item item : items) {
             if (item.getId().equals(itemId))
                 return item;
         }
-        throw new NotFoundException("Нет вещи с ID: " + itemId);
+        throw new NotFoundException("У пользователя с Id " + userId + " нет вещи с Id: " + itemId);
+    }
+
+    @Override
+    public Item findItem(Long itemId) {
+        for (Map.Entry<Long, List<Item>> itemSet : items.entrySet())
+            for (Item item : itemSet.getValue())
+                if (item.getId().equals(itemId))
+                    return item;
+        throw new NotFoundException("Нет вещи с Id: " + itemId);
+    }
+
+    @Override
+    public List<Item> searchItemBySustring(String subStr) {
+        List<Item> foundItems = new ArrayList<>();
+        if (!subStr.isEmpty())
+            for (Map.Entry<Long, List<Item>> itemSet : items.entrySet())
+                for (Item item : itemSet.getValue())
+                    if (item.getName().toLowerCase().contains(subStr.toLowerCase())
+                            || item.getDescription().toLowerCase().contains(subStr.toLowerCase()))
+                        if (item.getAvailable())
+                            foundItems.add(item);
+        return foundItems;
     }
 
     @Override
@@ -35,7 +57,7 @@ public class ItemRepositoryImpl implements ItemRepository{
 
     @Override
     public Item update(Long userId, Item item) {
-        Item updatedItem = findItemByUserId(userId, item.getId());
+        Item updatedItem = findItemByUserIdAndItemId(userId, item.getId());
         if (!userId.equals(updatedItem.getOwnerId()))
             throw new BadRequestException("Пользователь с Id " + userId + " не является собственником вещи с Id " + item.getId());
         if (item.getName() != null)
@@ -44,12 +66,12 @@ public class ItemRepositoryImpl implements ItemRepository{
             updatedItem.setDescription(item.getDescription());
         if (item.getAvailable() != null)
             updatedItem.setAvailable(item.getAvailable());
-        return  updatedItem;
+        return updatedItem;
     }
 
     @Override
     public void deleteByUserIdAndItemId(Long userId, Long itemId) {
-        if(items.containsKey(userId)) {
+        if (items.containsKey(userId)) {
             List<Item> userItems = items.get(userId);
             userItems.removeIf(item -> item.getId().equals(itemId));
         }

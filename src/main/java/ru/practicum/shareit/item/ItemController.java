@@ -1,10 +1,13 @@
 package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+
+@Slf4j
 
 /**
  * TODO Sprint add-controllers.
@@ -22,8 +25,15 @@ public class ItemController {
 
     @GetMapping("/{itemId}")
     public Item getItem(@RequestHeader("X-Sharer-User-Id") Long userId,
-                           @PathVariable Long itemId) {
+                        @PathVariable Long itemId) {
         return itemService.getItem(userId, itemId);
+    }
+
+    @GetMapping("/search")
+    public List<Item> searchItemBySubstring(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                            @RequestParam String text) {
+        log.info("КОНТРОЛЛЕР: SEARCH-запрос по эндпоинту /search?{}", text);
+        return itemService.searchItemBySubstring(text);
     }
 
     @PostMapping

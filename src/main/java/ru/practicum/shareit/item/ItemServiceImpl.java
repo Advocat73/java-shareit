@@ -21,7 +21,14 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Item getItem(Long userId, Long itemId) {
-        return itemRepository.findItemByUserId(userId, itemId);
+        return itemRepository.findItem(itemId);
+    }
+
+    @Override
+    public List<Item> searchItemBySubstring(String subStr) {
+        if (subStr == null)
+            throw new BadRequestException("Нужна строка для поиска");
+        return itemRepository.searchItemBySustring(subStr);
     }
 
     @Override
