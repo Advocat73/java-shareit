@@ -2,6 +2,7 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.UserService;
 
@@ -33,8 +34,8 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Item updateItem(Long userId, Item item) {
-        if (!userId.equals(item.getOwnerId()))
-            return null;
+        if (item.getId() == null)
+            throw new NotFoundException("Не указан Id вещи при запросе Update");
         return itemRepository.update(userId, item);
     }
 

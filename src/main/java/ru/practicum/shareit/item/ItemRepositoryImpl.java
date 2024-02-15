@@ -1,6 +1,8 @@
 package ru.practicum.shareit.item;
 
 import org.springframework.stereotype.Repository;
+import ru.practicum.shareit.exception.BadRequestException;
+import ru.practicum.shareit.exception.NotFoundException;
 
 import java.util.*;
 
@@ -21,7 +23,7 @@ public class ItemRepositoryImpl implements ItemRepository{
             if (item.getId().equals(itemId))
                 return item;
         }
-        return null;
+        throw new NotFoundException("Нет вещи с ID: " + itemId);
     }
 
     @Override
@@ -33,13 +35,16 @@ public class ItemRepositoryImpl implements ItemRepository{
 
     @Override
     public Item update(Long userId, Item item) {
-        Item oldItem = findItemByUserId(userId, item.getId());
-        if (oldItem != null) {
-            oldItem.setName(item.getName());
-            oldItem.setDescription(item.getDescription());
-            oldItem.setAvailable(item.getAvailable());
-        }
-        return  oldItem;
+        Item updatedItem = findItemByUserId(userId, item.getId());
+        if (!userId.equals(updatedItem.getOwnerId()))
+            throw new BadRequestException("Пользователь с Id " + userId + " не является собственником вещи с Id " + item.getId());
+        if (item.getName() != null)
+            updatedItem.setName(item.getName());
+        if (item.getDescription() != null)
+            updatedItem.setDescription(item.getDescription());
+        if (item.getAvailable() != null)
+            updatedItem.setAvailable(item.getAvailable());
+        return  updatedItem;
     }
 
     @Override

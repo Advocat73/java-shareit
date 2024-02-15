@@ -2,7 +2,7 @@ package ru.practicum.shareit.user;
 
 import java.util.List;
 
-interface UserService {
+public interface UserService {
     List<User> getAllUsers();
     User getUser(Long userId);
     User saveUser(User user);

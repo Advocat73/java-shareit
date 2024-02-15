@@ -32,9 +32,11 @@ public class ItemController {
         return itemService.addNewItem(userId, item);
     }
 
-    @PatchMapping
+    @PatchMapping("/{itemId}")
     public Item update(@RequestHeader("X-Sharer-User-Id") Long userId,
-                       @RequestBody Item item) {
+                       @RequestBody Item item,
+                       @PathVariable Long itemId) {
+        item.setId(itemId);
         return itemService.updateItem(userId, item);
     }
 
