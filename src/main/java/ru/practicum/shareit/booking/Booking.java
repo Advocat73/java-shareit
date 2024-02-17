@@ -5,9 +5,6 @@ import ru.practicum.shareit.user.User;
 
 import java.time.LocalDateTime;
 
-/**
- * TODO Sprint add-bookings.
- */
 public class Booking {
     Long id; //уникальный идентификатор бронирования;
     LocalDateTime start;    //дата и время начала бронирования
