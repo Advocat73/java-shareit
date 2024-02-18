@@ -9,15 +9,14 @@ import javax.validation.constraints.NotNull;
 
 @Data
 public class Item {
-    Long id;                //уникальный идентификатор вещи
+    Long id;
     @NotBlank(message = "Название вещи не может быть пустым")
-    String name;            //краткое название;
+    String name;
     @NotBlank(message = "Должно быть описание вещи")
-    String description;     //развёрнутое описание
+    String description;
     @NotNull
     @BooleanFlag
-    Boolean available;      //статус о том, доступна или нет вещь для аренды
-    Long ownerId;          //владелец вещи
-    ItemRequest request;    /*если вещь была создана по запросу другого пользователя,
-                            то в этом поле будет храниться ссылка на соответствующий запрос*/
+    Boolean available;
+    Long ownerId;
+    ItemRequest request;
 }

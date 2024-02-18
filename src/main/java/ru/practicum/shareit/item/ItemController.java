@@ -9,9 +9,6 @@ import java.util.List;
 
 @Slf4j
 
-/**
- * TODO Sprint add-controllers.
- */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "/items")
