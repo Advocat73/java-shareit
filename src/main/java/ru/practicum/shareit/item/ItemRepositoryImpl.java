@@ -4,6 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemMapper;
 
 import java.util.*;
 
@@ -63,18 +65,18 @@ public class ItemRepositoryImpl implements ItemRepository {
     }
 
     @Override
-    public Item update(Long userId, Item item) {
-        log.info("ITEM_ХРАНИЛИЩЕ: Изменение данных вещи с id {} пользователем с id {}", item.getId(), userId);
-        Item updatedItem = findItemByUserIdAndItemId(userId, item.getId());
+    public Item update(Long userId, ItemDto itemDto) {
+        log.info("ITEM_ХРАНИЛИЩЕ: Изменение данных вещи с id {} пользователем с id {}", itemDto.getId(), userId);
+        Item updatedItem = findItemByUserIdAndItemId(userId, itemDto.getId());
         if (!userId.equals(updatedItem.getOwnerId()))
-            throw new BadRequestException("Пользователь с Id " + userId + " не является собственником вещи с Id " + item.getId());
-        if (item.getName() != null)
-            updatedItem.setName(item.getName());
-        if (item.getDescription() != null)
-            updatedItem.setDescription(item.getDescription());
-        if (item.getAvailable() != null)
-            updatedItem.setAvailable(item.getAvailable());
-        return updatedItem;
+            throw new BadRequestException("Пользователь с Id " + userId + " не является собственником вещи с Id " + itemDto.getId());
+        if (itemDto.getName() != null)
+            updatedItem.setName(itemDto.getName());
+        if (itemDto.getDescription() != null)
+            updatedItem.setDescription(itemDto.getDescription());
+        if (itemDto.getAvailable() != null)
+            updatedItem.setAvailable(itemDto.getAvailable());
+        return ItemMapper.fromItemDto(itemDto, updatedItem);
     }
 
     @Override

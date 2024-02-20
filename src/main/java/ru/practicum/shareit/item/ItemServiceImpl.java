@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.UserService;
 
 import java.util.List;
@@ -46,11 +47,11 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Item updateItem(Long userId, Item item) {
-        if (item.getId() == null)
+    public Item updateItem(Long userId, ItemDto itemDto) {
+        if (itemDto.getId() == null)
             throw new NotFoundException("Не указан Id вещи при запросе Update");
-        log.info("ITEM_СЕРВИС: Отправлен запрос к хранилищу от пользователя с id {} на изменение вещи с id {}", userId, item.getId());
-        return itemRepository.update(userId, item);
+        log.info("ITEM_СЕРВИС: Отправлен запрос к хранилищу от пользователя с id {} на изменение вещи с id {}", userId, itemDto.getId());
+        return itemRepository.update(userId, itemDto);
     }
 
     @Override
