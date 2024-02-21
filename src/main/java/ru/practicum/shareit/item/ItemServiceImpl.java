@@ -28,6 +28,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDto getItem(Long userId, Long itemId) {
         log.info("ITEM_СЕРВИС: Отправлен запрос к хранилищу от пользователя с id {} на получение вещи с id {}", userId, itemId);
+        
         return ItemMapper.toItemDto(itemRepository.findItem(itemId));
     }
 
