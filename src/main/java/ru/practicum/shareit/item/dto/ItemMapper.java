@@ -13,7 +13,8 @@ public class ItemMapper {
         return  itemDto;
     }
 
-    public static Item fromItemDto(ItemDto itemDto, Item item) {
+    public static Item fromItemDto(ItemDto itemDto) {
+        Item item = new Item();
         if (itemDto.getName() != null)
             item.setName(itemDto.getName());
         if (itemDto.getDescription() != null)

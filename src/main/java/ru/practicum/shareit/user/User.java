@@ -8,6 +8,7 @@ import javax.validation.constraints.NotNull;
 @Data
 public class User {
     Long id;
+    @NotNull
     String name;
     @NotNull
     @Email(message = "Передан некорректный e-mail адрес")

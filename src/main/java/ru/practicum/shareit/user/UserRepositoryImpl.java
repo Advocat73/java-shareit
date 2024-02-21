@@ -3,8 +3,6 @@ package ru.practicum.shareit.user;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.dto.UserMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,12 +39,16 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public User update(UserDto userDto, Long userId) {
+    public User update(User user, Long userId) {
         User updatedUser = findUserById(userId);
         if (updatedUser == null)
             throw new NotFoundException("Нет пользователя с ID: " + userId);
         log.info("USER_ХРАНИЛИЩЕ: Изменение пользователя с id {}", userId);
-        return UserMapper.fromUserDto(userDto, updatedUser);
+        if (user.getEmail() != null)
+            updatedUser.setEmail(user.getEmail());
+        if (user.getName() != null)
+            updatedUser.setName(user.getName());
+        return updatedUser;
     }
 
     @Override

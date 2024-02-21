@@ -6,9 +6,11 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.user.UserService;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -18,40 +20,44 @@ public class ItemServiceImpl implements ItemService {
     private final UserService userService;
 
     @Override
-    public List<Item> getItems(Long userId) {
+    public List<ItemDto> getItems(Long userId) {
         log.info("ITEM_СЕРВИС: Отправлен запрос к хранилищу на получение вещей пользователя с id {}", userId);
-        return itemRepository.findByUserId(userId);
+        return itemRepository.findByUserId(userId).stream().map(ItemMapper::toItemDto).collect(Collectors.toList());
     }
 
     @Override
-    public Item getItem(Long userId, Long itemId) {
+    public ItemDto getItem(Long userId, Long itemId) {
         log.info("ITEM_СЕРВИС: Отправлен запрос к хранилищу от пользователя с id {} на получение вещи с id {}", userId, itemId);
-        return itemRepository.findItem(itemId);
+        return ItemMapper.toItemDto(itemRepository.findItem(itemId));
     }
 
     @Override
-    public List<Item> searchItemBySubstring(String subStr) {
+    public List<ItemDto> searchItemBySubstring(String subStr) {
         if (subStr == null)
             throw new BadRequestException("Нужна строка для поиска");
         log.info("ITEM_СЕРВИС: Отправлен запрос к хранилищу на поиск вещи, содержащей текст {}", subStr);
-        return itemRepository.searchItemBySustring(subStr);
+        return itemRepository.searchItemBySustring(subStr).stream().map(ItemMapper::toItemDto).collect(Collectors.toList());
     }
 
     @Override
-    public Item addNewItem(Long userId, Item item) {
+    public ItemDto addNewItem(Long userId, ItemDto itemDto) {
+        if (userId == null)
+            throw new BadRequestException("Не указан Id пользователя при запросе Update");
         if (userService.getUser(userId) == null)
             throw new NotFoundException("Нет пользователя с ID: " + userId);
-        item.setOwnerId(userId);
         log.info("ITEM_СЕРВИС: Отправлен запрос к хранилищу от пользователя с id {} на добавление новой вещи", userId);
-        return itemRepository.save(item);
+        Item item = ItemMapper.fromItemDto(itemDto);
+        item.setOwnerId(userId);
+        return ItemMapper.toItemDto(itemRepository.save(item));
     }
 
     @Override
-    public Item updateItem(Long userId, ItemDto itemDto) {
-        if (itemDto.getId() == null)
+    public ItemDto updateItem(Long userId, ItemDto itemDto, Long itemId) {
+        if (itemId == null)
             throw new NotFoundException("Не указан Id вещи при запросе Update");
-        log.info("ITEM_СЕРВИС: Отправлен запрос к хранилищу от пользователя с id {} на изменение вещи с id {}", userId, itemDto.getId());
-        return itemRepository.update(userId, itemDto);
+        log.info("ITEM_СЕРВИС: Отправлен запрос к хранилищу от пользователя с id {} на изменение вещи с id {}", userId, itemId);
+        Item item = ItemMapper.fromItemDto(itemDto);
+        return ItemMapper.toItemDto(itemRepository.update(userId, item, itemId));
     }
 
     @Override
