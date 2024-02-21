@@ -6,6 +6,7 @@ import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.NotFoundException;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Repository
@@ -43,15 +44,12 @@ public class ItemRepositoryImpl implements ItemRepository {
     @Override
     public List<Item> searchItemBySustring(String subStr) {
         log.info("ITEM_ХРАНИЛИЩЕ: Получение вещей по сабстрингу {}", subStr);
-        List<Item> foundItems = new ArrayList<>();
-        if (!subStr.isEmpty())
-            for (Map.Entry<Long, List<Item>> itemSet : items.entrySet())
-                for (Item item : itemSet.getValue())
-                    if (item.getName().toLowerCase().contains(subStr.toLowerCase())
-                            || item.getDescription().toLowerCase().contains(subStr.toLowerCase()))
-                        if (item.getAvailable())
-                            foundItems.add(item);
-        return foundItems;
+        return (!subStr.isEmpty()) ?
+            items.values().stream().flatMap(Collection::stream).collect(Collectors.toList()).stream()
+                .filter(item->item.getName().toLowerCase().contains(subStr.toLowerCase())
+                        || item.getDescription().toLowerCase().contains(subStr.toLowerCase()))
+                .filter(Item::getAvailable)
+                .collect(Collectors.toList()) : List.of();
     }
 
     @Override
