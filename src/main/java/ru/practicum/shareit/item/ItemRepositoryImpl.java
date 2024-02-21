@@ -45,11 +45,12 @@ public class ItemRepositoryImpl implements ItemRepository {
     public List<Item> searchItemBySustring(String subStr) {
         log.info("ITEM_ХРАНИЛИЩЕ: Получение вещей по сабстрингу {}", subStr);
         return (!subStr.isEmpty()) ?
-            items.values().stream().flatMap(Collection::stream)
-                .filter(item->item.getName().toLowerCase().contains(subStr.toLowerCase())
+            items.values().stream()
+            .flatMap(Collection::stream)
+            .filter(item->item.getName().toLowerCase().contains(subStr.toLowerCase())
                         || item.getDescription().toLowerCase().contains(subStr.toLowerCase()))
-                .filter(Item::getAvailable)
-                .collect(Collectors.toList()) : List.of();
+            .filter(Item::getAvailable)
+            .collect(Collectors.toList()) : List.of();
     }
 
     @Override
