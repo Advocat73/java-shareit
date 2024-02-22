@@ -17,11 +17,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 class UserServiceImpl implements UserService {
     private final UserRepository repository;
+    private final UserMapper userMapper;
 
     @Override
     public List<UserDto> getAllUsers() {
         log.info("USER_СЕРВИС: Отправлен запрос к хранилищу на получение пользователей");
-        return repository.findAll().stream().map(UserMapper::toUserDto).collect(Collectors.toList());
+        return repository.findAll().stream().map(userMapper::toUserDto).collect(Collectors.toList());
     }
 
     @Override
@@ -30,7 +31,7 @@ class UserServiceImpl implements UserService {
         User user = repository.findUserById(userId);
         if (user == null)
             throw new NotFoundException("Нет пользователя с ID: " + userId);
-        return UserMapper.toUserDto(user);
+        return userMapper.toUserDto(user);
     }
 
     @Override
@@ -39,8 +40,8 @@ class UserServiceImpl implements UserService {
         if (repository.existEmail(userDto.getEmail(), l))
             throw new DataConflictException("Пользователь с email: " + userDto.getEmail() + " уже существует");
         log.info("USER_СЕРВИС: Отправлен запрос к хранилищу на сохранение нового пользователя");
-        User user = UserMapper.fromUserDto(userDto);
-        return UserMapper.toUserDto(repository.save(user));
+        User user = userMapper.fromUserDto(userDto);
+        return userMapper.toUserDto(repository.save(user));
     }
 
     @Override
@@ -50,8 +51,8 @@ class UserServiceImpl implements UserService {
         if (repository.existEmail(userDto.getEmail(), userId))
             throw new DataConflictException("Пользователь с email: " + userDto.getEmail() + " уже существует");
         log.info("USER_СЕРВИС: Отправлен запрос к хранилищу на изменение данных пользователя с Id {}", userId);
-        User user = UserMapper.fromUserDto(userDto);
-        return UserMapper.toUserDto(repository.update(user, userId));
+        User user = userMapper.fromUserDto(userDto);
+        return userMapper.toUserDto(repository.update(user, userId));
     }
 
     @Override

@@ -18,18 +18,19 @@ import java.util.stream.Collectors;
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final UserService userService;
+    public final ItemMapper itemMapper;
 
     @Override
     public List<ItemDto> getItems(Long userId) {
         log.info("ITEM_СЕРВИС: Отправлен запрос к хранилищу на получение вещей пользователя с id {}", userId);
-        return itemRepository.findByUserId(userId).stream().map(ItemMapper::toItemDto).collect(Collectors.toList());
+        return itemRepository.findByUserId(userId).stream().map(itemMapper::toItemDto).collect(Collectors.toList());
     }
 
     @Override
     public ItemDto getItem(Long userId, Long itemId) {
         log.info("ITEM_СЕРВИС: Отправлен запрос к хранилищу от пользователя с id {} на получение вещи с id {}", userId, itemId);
         
-        return ItemMapper.toItemDto(itemRepository.findItem(itemId));
+        return itemMapper.toItemDto(itemRepository.findItem(itemId));
     }
 
     @Override
@@ -37,7 +38,7 @@ public class ItemServiceImpl implements ItemService {
         if (subStr == null)
             throw new BadRequestException("Нужна строка для поиска");
         log.info("ITEM_СЕРВИС: Отправлен запрос к хранилищу на поиск вещи, содержащей текст {}", subStr);
-        return itemRepository.searchItemBySustring(subStr).stream().map(ItemMapper::toItemDto).collect(Collectors.toList());
+        return itemRepository.searchItemBySustring(subStr).stream().map(itemMapper::toItemDto).collect(Collectors.toList());
     }
 
     @Override
@@ -47,9 +48,9 @@ public class ItemServiceImpl implements ItemService {
         if (userService.getUser(userId) == null)
             throw new NotFoundException("Нет пользователя с ID: " + userId);
         log.info("ITEM_СЕРВИС: Отправлен запрос к хранилищу от пользователя с id {} на добавление новой вещи", userId);
-        Item item = ItemMapper.fromItemDto(itemDto);
+        Item item = itemMapper.fromItemDto(itemDto);
         item.setOwnerId(userId);
-        return ItemMapper.toItemDto(itemRepository.save(item));
+        return itemMapper.toItemDto(itemRepository.save(item));
     }
 
     @Override
@@ -57,8 +58,8 @@ public class ItemServiceImpl implements ItemService {
         if (itemId == null)
             throw new NotFoundException("Не указан Id вещи при запросе Update");
         log.info("ITEM_СЕРВИС: Отправлен запрос к хранилищу от пользователя с id {} на изменение вещи с id {}", userId, itemId);
-        Item item = ItemMapper.fromItemDto(itemDto);
-        return ItemMapper.toItemDto(itemRepository.update(userId, item, itemId));
+        Item item = itemMapper.fromItemDto(itemDto);
+        return itemMapper.toItemDto(itemRepository.update(userId, item, itemId));
     }
 
     @Override
