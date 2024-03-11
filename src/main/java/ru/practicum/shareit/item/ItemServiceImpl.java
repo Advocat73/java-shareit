@@ -95,7 +95,7 @@ public class ItemServiceImpl implements ItemService {
         User commentator = userRepository.findById(commentatorId).orElseThrow(() -> new NotFoundException("Нет пользователя с ID: " + commentatorId));
         Item item = itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Нет вещи с Id: " + itemId));
         log.info("ITEM_СЕРВИС: Отправлен запрос к хранилищу от пользователя с id {} на добавление комментария вещи с id {}", commentatorId, itemId);
-        Comment comment = CommentMapper.fromCommentDto(commentDto, commentator, item);
+        Coment comment = CommentMapper.fromCommentDto(commentDto, commentator, item);
         return CommentMapper.toCommentDto(commentRepository.save(comment));
     }
 

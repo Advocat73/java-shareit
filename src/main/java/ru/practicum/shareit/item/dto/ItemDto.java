@@ -2,7 +2,6 @@ package ru.practicum.shareit.item.dto;
 
 import jdk.jfr.BooleanFlag;
 import lombok.Data;
-import ru.practicum.shareit.item.Comment;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;

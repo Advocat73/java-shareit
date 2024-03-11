@@ -1,6 +1,6 @@
 package ru.practicum.shareit.item.dto;
 
-import ru.practicum.shareit.item.Comment;
+import ru.practicum.shareit.item.Coment;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.user.User;
 
@@ -8,17 +8,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CommentMapper {
-    public static Comment fromCommentDto(CommentDto commentDto, User commentator, Item item) {
+    public static Coment fromCommentDto(CommentDto commentDto, User commentator, Item item) {
         if (commentDto == null)
             return null;
-        Comment comment = new Comment();
+        Coment comment = new Coment();
         comment.setText(commentDto.getText());
         comment.setAuthor(commentator);
         comment.setItem(item);
         return comment;
     }
 
-    public static CommentDto toCommentDto(Comment comment) {
+    public static CommentDto toCommentDto(Coment comment) {
         if (comment == null)
             return null;
         CommentDto commentDto = new CommentDto();
@@ -29,9 +29,9 @@ public class CommentMapper {
         return commentDto;
     }
 
-    public static List<CommentDto> toCommentDto(List<Comment> comments) {
+    public static List<CommentDto> toCommentDto(List<Coment> comments) {
         List<CommentDto> dtos = new ArrayList<>();
-        for (Comment comment : comments)
+        for (Coment comment : comments)
             dtos.add(toCommentDto(comment));
         return dtos;
     }
