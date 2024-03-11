@@ -1,7 +1,6 @@
 package ru.practicum.shareit.user;
 
 import lombok.Data;
-import org.hibernate.validator.constraints.UniqueElements;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -17,7 +16,7 @@ public class User {
     @NotNull
     String name;
     @NotNull
-    @Column(unique=true)
+    @Column(unique = true)
     @Email(message = "Передан некорректный e-mail адрес")
     String email;
 }
