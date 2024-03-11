@@ -19,20 +19,7 @@ class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
 
     @Override
-    public List<UserDto> getAllUsers() {
-        log.info("USER_СЕРВИС: Отправлен запрос к хранилищу на получение пользователей");
-        return repository.findAll().stream().map(userMapper::toUserDto).collect(Collectors.toList());
-    }
-
-    @Override
-    public UserDto getUser(Long userId) {
-        User user = repository.findById(userId).orElseThrow(() -> new NotFoundException("Нет пользователя с ID: " + userId));
-        log.info("USER_СЕРВИС: Отправлен запрос к хранилищу на получение пользователя с Id {}", userId);
-        return userMapper.toUserDto(user);
-    }
-
-    @Override
-    public UserDto saveUser(UserDto userDto) {
+    public UserDto addNewUser(UserDto userDto) {
         log.info("USER_СЕРВИС: Отправлен запрос к хранилищу на сохранение нового пользователя");
         return addUser(userMapper.fromUserDto(userDto));
     }
@@ -48,6 +35,20 @@ class UserServiceImpl implements UserService {
         log.info("USER_СЕРВИС: Отправлен запрос к хранилищу на изменение данных пользователя с Id {}", userId);
         return addUser(user);
     }
+
+    @Override
+    public List<UserDto> getAllUsers() {
+        log.info("USER_СЕРВИС: Отправлен запрос к хранилищу на получение пользователей");
+        return repository.findAll().stream().map(userMapper::toUserDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public UserDto getUser(Long userId) {
+        User user = repository.findById(userId).orElseThrow(() -> new NotFoundException("Нет пользователя с ID: " + userId));
+        log.info("USER_СЕРВИС: Отправлен запрос к хранилищу на получение пользователя с Id {}", userId);
+        return userMapper.toUserDto(user);
+    }
+
 
     @Override
     public void deleteUser(Long userId) {

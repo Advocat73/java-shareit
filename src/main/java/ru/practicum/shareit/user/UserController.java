@@ -19,7 +19,7 @@ public class UserController {
     @PostMapping
     public UserDto addNewUser(@Valid @RequestBody UserDto userDto) {
         log.info("USER_КОНТРОЛЛЕР: POST-запрос по эндпоинту /users");
-        return userService.saveUser(userDto);
+        return userService.addNewUser(userDto);
     }
 
     @PatchMapping("/{userId}")
