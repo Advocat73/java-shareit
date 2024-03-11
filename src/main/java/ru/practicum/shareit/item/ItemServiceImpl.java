@@ -3,12 +3,17 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.Booking;
+import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.booking.BookingStatus;
+import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemMapper;
-import ru.practicum.shareit.user.UserService;
+import ru.practicum.shareit.item.dto.*;
+import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.UserRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,55 +22,93 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
-    private final UserService userService;
-    public final ItemMapper itemMapper;
+    private final UserRepository userRepository;
+    private final BookingRepository bookingRepository;
+    private final CommentRepository commentRepository;
 
     @Override
-    public List<ItemDto> getItems(Long userId) {
-        log.info("ITEM_СЕРВИС: Отправлен запрос к хранилищу на получение вещей пользователя с id {}", userId);
-        return itemRepository.findByUserId(userId).stream().map(itemMapper::toItemDto).collect(Collectors.toList());
+    public ItemDto addNewItem(Long userId, ItemDto itemDto) {
+        User owner = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Нет пользователя с ID: " + userId));
+        log.info("ITEM_СЕРВИС: Отправлен запрос к хранилищу от пользователя с id {} на добавление новой вещи", userId);
+        Item item = ItemMapper.fromItemDto(itemDto);
+        item.setOwner(owner);
+        return ItemMapper.toItemDto(itemRepository.save(item));
     }
 
     @Override
-    public ItemDto getItem(Long userId, Long itemId) {
-        log.info("ITEM_СЕРВИС: Отправлен запрос к хранилищу от пользователя с id {} на получение вещи с id {}", userId, itemId);
-        
-        return itemMapper.toItemDto(itemRepository.findItem(itemId));
+    public ItemDto updateItem(Long ownerId, ItemDto itemDto, Long itemId) {
+        userRepository.findById(ownerId).orElseThrow(() -> new NotFoundException("Нет пользователя с ID: " + ownerId));
+        Item item = itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Нет вещи с Id " + itemId));
+        if (!ownerId.equals(item.getOwner().getId()))
+            throw new BadRequestException("Пользователь с Id " + ownerId + " не является собственником вещи с Id " + itemId);
+        if (itemDto.getName() != null)
+            item.setName(itemDto.getName());
+        if (itemDto.getDescription() != null)
+            item.setDescription(itemDto.getDescription());
+        if (itemDto.getAvailable() != null)
+            item.setAvailable(itemDto.getAvailable());
+        log.info("ITEM_СЕРВИС: Отправлен запрос к хранилищу от пользователя с id {} на изменение вещи с id {}", ownerId, itemId);
+        return ItemMapper.toItemDto(itemRepository.save(item));
+    }
+
+
+    @Override
+    public List<ItemWithDatesBookingDto> getItems(Long ownerId) {
+        log.info("ITEM_СЕРВИС: Отправлен запрос к хранилищу на получение вещей пользователя с id {}", ownerId);
+        return itemRepository.findAllByOwnerIdOrderByIdAsc(ownerId).stream()
+                .map(this::setLastAndNextBooking)
+                .peek(iwdbDto->iwdbDto.setComments(CommentMapper.toCommentDto(commentRepository.findAllByItemId(iwdbDto.getId()))))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public ItemWithDatesBookingDto getItem(Long requesterId, Long itemId) {
+        Item item = itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Нет вещи с Id: " + itemId));
+        log.info("ITEM_СЕРВИС: Отправлен запрос к хранилищу от пользователя с id {} на получение вещи с id {}", requesterId, itemId);
+        ItemWithDatesBookingDto iwdbDto = (requesterId.equals(item.getOwner().getId())) ? setLastAndNextBooking(item)
+                : ItemWithDatesBookingMapper.toItemWithDatesBookingDto(item);
+        iwdbDto.setComments(CommentMapper.toCommentDto(commentRepository.findAllByItemId(itemId)));
+        return iwdbDto;
     }
 
     @Override
     public List<ItemDto> searchItemBySubstring(String subStr) {
-        if (subStr == null)
-            throw new BadRequestException("Нужна строка для поиска");
+        if (subStr.isEmpty())
+            return List.of();
         log.info("ITEM_СЕРВИС: Отправлен запрос к хранилищу на поиск вещи, содержащей текст {}", subStr);
-        return itemRepository.searchItemBySustring(subStr).stream().map(itemMapper::toItemDto).collect(Collectors.toList());
-    }
-
-    @Override
-    public ItemDto addNewItem(Long userId, ItemDto itemDto) {
-        if (userId == null)
-            throw new BadRequestException("Не указан Id пользователя при запросе Update");
-        if (userService.getUser(userId) == null)
-            throw new NotFoundException("Нет пользователя с ID: " + userId);
-        log.info("ITEM_СЕРВИС: Отправлен запрос к хранилищу от пользователя с id {} на добавление новой вещи", userId);
-        Item item = itemMapper.fromItemDto(itemDto);
-        item.setOwnerId(userId);
-        return itemMapper.toItemDto(itemRepository.save(item));
-    }
-
-    @Override
-    public ItemDto updateItem(Long userId, ItemDto itemDto, Long itemId) {
-        if (itemId == null)
-            throw new NotFoundException("Не указан Id вещи при запросе Update");
-        log.info("ITEM_СЕРВИС: Отправлен запрос к хранилищу от пользователя с id {} на изменение вещи с id {}", userId, itemId);
-        Item item = itemMapper.fromItemDto(itemDto);
-        return itemMapper.toItemDto(itemRepository.update(userId, item, itemId));
+        return itemRepository.searchItemBySustring(subStr).stream().map(ItemMapper::toItemDto).collect(Collectors.toList());
     }
 
     @Override
     public void deleteItem(Long userId, Long itemId) {
+        Item item = itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Нет вещи с Id: " + itemId));
+        if (!userId.equals(item.getOwner().getId()))
+            throw new BadRequestException("Пользователь с Id " + userId + " не является собственником вещи с Id " + itemId);
         log.info("ITEM_СЕРВИС: Отправлен запрос к хранилищу от пользователя с id {} на удаление вещи с id {}", userId, itemId);
-        itemRepository.deleteByUserIdAndItemId(userId, itemId);
+        itemRepository.delete(item);
+    }
+
+    @Override
+    public CommentDto addNewComment(Long commentatorId, Long itemId, CommentDto commentDto) {
+        bookingRepository.findFirstByItemIdAndBookerIdAndStatusAndEndDateBefore(itemId, commentatorId, BookingStatus.APPROVED, LocalDateTime.now())
+                .orElseThrow(() -> new BadRequestException("Нет законченного бронирования вещи с Id: " + itemId + " пользователем с Id " + commentatorId));
+        User commentator = userRepository.findById(commentatorId).orElseThrow(() -> new NotFoundException("Нет пользователя с ID: " + commentatorId));
+        Item item = itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Нет вещи с Id: " + itemId));
+        log.info("ITEM_СЕРВИС: Отправлен запрос к хранилищу от пользователя с id {} на добавление комментария вещи с id {}", commentatorId, itemId);
+        Comment comment = CommentMapper.fromCommentDto(commentDto, commentator, item);
+        return CommentMapper.toCommentDto(commentRepository.save(comment));
+    }
+
+    private ItemWithDatesBookingDto setLastAndNextBooking(Item item) {
+        ItemWithDatesBookingDto iwdbDto = ItemWithDatesBookingMapper.toItemWithDatesBookingDto(item);
+        LocalDateTime currentDate = LocalDateTime.now();
+        List<Booking> listLastBooking = bookingRepository.findAllByItemIdAndStartDateBeforeAndStatusNotOrderByStartDateDesc(item.getId(), currentDate, BookingStatus.REJECTED);
+        Booking lastBooking = (listLastBooking.size() == 0) ? null : listLastBooking.get(0);
+        List<Booking> listNextBooking = bookingRepository.findAllByItemIdAndStartDateAfterAndStatusNotOrderByStartDateAsc(item.getId(), currentDate, BookingStatus.REJECTED);
+        Booking nextBooking = (listNextBooking.size() == 0) ? null : listNextBooking.get(0);
+        iwdbDto.setLastBooking(BookingMapper.toBookingDto(lastBooking));
+        iwdbDto.setNextBooking(BookingMapper.toBookingDto(nextBooking));
+        return iwdbDto;
     }
 }
 
