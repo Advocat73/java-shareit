@@ -26,28 +26,26 @@ class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getUser(Long userId) {
-        log.info("USER_СЕРВИС: Отправлен запрос к хранилищу на получение пользователя с Id {}", userId);
         User user = repository.findById(userId).orElseThrow(() -> new NotFoundException("Нет пользователя с ID: " + userId));
+        log.info("USER_СЕРВИС: Отправлен запрос к хранилищу на получение пользователя с Id {}", userId);
         return userMapper.toUserDto(user);
     }
 
     @Override
     public UserDto saveUser(UserDto userDto) {
         log.info("USER_СЕРВИС: Отправлен запрос к хранилищу на сохранение нового пользователя");
-        User user = userMapper.fromUserDto(userDto);
-        return addUser(user);
+        return addUser(userMapper.fromUserDto(userDto));
     }
 
     @Override
     public UserDto updateUser(UserDto updatedUserDto, Long userId) {
-        log.info("USER_СЕРВИС: Отправлен запрос к хранилищу на изменение данных пользователя с Id {}", userId);
         User user = repository.findById(userId).orElseThrow(() -> new NotFoundException("Нет пользователя с ID: " + userId));
         User updatedUser = userMapper.fromUserDto(updatedUserDto);
-        updatedUser.setId(userId);
         if (updatedUser.getEmail() != null)
             user.setEmail(updatedUser.getEmail());
         if (updatedUser.getName() != null)
             user.setName(updatedUser.getName());
+        log.info("USER_СЕРВИС: Отправлен запрос к хранилищу на изменение данных пользователя с Id {}", userId);
         return addUser(user);
     }
 

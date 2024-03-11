@@ -22,9 +22,9 @@ public class CommentMapper {
         if (comment == null)
             return null;
         CommentDto commentDto = new CommentDto();
+        commentDto.setId(comment.getId());
         commentDto.setText(comment.getText());
         commentDto.setAuthorName(comment.getAuthor().getName());
-        commentDto.setId(comment.getId());
         commentDto.setCreated(comment.getCreatedDate());
         return commentDto;
     }

@@ -20,10 +20,8 @@ public class BookingDto {
     Long itemId;
     Long bookerId;
     @NotNull
-    //@DateAfterNow
     LocalDateTime start;
     @NotNull
-    //@DateAfterNow
     LocalDateTime end;
     String status;
     User booker;

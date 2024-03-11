@@ -8,6 +8,7 @@ import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.exception.BadRequestException;
+import ru.practicum.shareit.exception.DataConflictException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.user.User;
@@ -30,9 +31,8 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto addNewItem(Long userId, ItemDto itemDto) {
         User owner = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Нет пользователя с ID: " + userId));
         log.info("ITEM_СЕРВИС: Отправлен запрос к хранилищу от пользователя с id {} на добавление новой вещи", userId);
-        Item item = ItemMapper.fromItemDto(itemDto);
-        item.setOwner(owner);
-        return ItemMapper.toItemDto(itemRepository.save(item));
+        Item item = ItemMapper.fromItemDto(itemDto, owner);
+        return addItem(item);
     }
 
     @Override
@@ -48,16 +48,16 @@ public class ItemServiceImpl implements ItemService {
         if (itemDto.getAvailable() != null)
             item.setAvailable(itemDto.getAvailable());
         log.info("ITEM_СЕРВИС: Отправлен запрос к хранилищу от пользователя с id {} на изменение вещи с id {}", ownerId, itemId);
-        return ItemMapper.toItemDto(itemRepository.save(item));
+        return addItem(item);
     }
 
 
     @Override
-    public List<ItemWithDatesBookingDto> getItems(Long ownerId) {
+    public List<ItemWithDatesBookingDto> getUserItems(Long ownerId) {
         log.info("ITEM_СЕРВИС: Отправлен запрос к хранилищу на получение вещей пользователя с id {}", ownerId);
         return itemRepository.findAllByOwnerIdOrderByIdAsc(ownerId).stream()
                 .map(this::setLastAndNextBooking)
-                .peek(iwdbDto->iwdbDto.setComments(CommentMapper.toCommentDto(commentRepository.findAllByItemId(iwdbDto.getId()))))
+                .peek(iwdbDto -> iwdbDto.setComments(CommentMapper.toCommentDto(commentRepository.findAllByItemId(iwdbDto.getId()))))
                 .collect(Collectors.toList());
     }
 
@@ -109,6 +109,14 @@ public class ItemServiceImpl implements ItemService {
         iwdbDto.setLastBooking(BookingMapper.toBookingDto(lastBooking));
         iwdbDto.setNextBooking(BookingMapper.toBookingDto(nextBooking));
         return iwdbDto;
+    }
+
+    private ItemDto addItem(Item item) {
+        try {
+            return ItemMapper.toItemDto(itemRepository.save(item));
+        } catch (RuntimeException e) {
+            throw new DataConflictException("Вещь с названием " + item.getName() + " не добавлена в БД из-за неверных данных");
+        }
     }
 }
 

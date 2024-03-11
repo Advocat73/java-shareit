@@ -29,8 +29,6 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingDto addNewBooking(Long bookerId, BookingDto bookingDto) {
-        if (bookerId == null)
-            throw new BadRequestException("Не указан Id пользователя при запросе на бронирование вещи");
         Long itemId = bookingDto.getItemId();
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Нет вещи с ID: " + itemId));
@@ -41,10 +39,7 @@ public class BookingServiceImpl implements BookingService {
         if (!item.getAvailable())
             throw new BadRequestException("Вещь с Id " + itemId + " не доступна для бронирования");
 
-        Booking booking = BookingMapper.fromBookingDto(bookingDto);
-        booking.setBooker(booker);
-        booking.setItem(item);
-        booking.setStatus(BookingStatus.WAITING);
+        Booking booking = BookingMapper.fromBookingDto(bookingDto, booker, item, BookingStatus.WAITING);
 
         log.info("BOOKING_СЕРВИС: Отправлен запрос к хранилищу на добавленние бронирования вещи c ID {} пользователем с ID {}", itemId, bookerId);
         return BookingMapper.toBookingDto(bookingRepository.save(booking));
@@ -52,10 +47,6 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingDto updateBooking(Long requesterId, Long bookingId, Boolean isApproved) {
-        if (requesterId == null)
-            throw new BadRequestException("Не указан Id собственника при запросе на изменение статуса бронирования");
-        if (bookingId == null)
-            throw new BadRequestException("Не указан Id бронирования при запросе на изменение статуса бронирования");
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new NotFoundException("Нет бронирования с ID: " + bookingId));
         if (booking.getStatus() != BookingStatus.WAITING)
@@ -71,10 +62,6 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingDto getBooking(Long requesterId, Long bookingId) {
-        if (requesterId == null)
-            throw new BadRequestException("Не указан Id запрашивателя при запросе на бронирование");
-        if (bookingId == null)
-            throw new BadRequestException("Не указан при заросе Id бронирования");
         userRepository.findById(requesterId)
                 .orElseThrow(() -> new NotFoundException("Нет пользователя с ID: " + requesterId));
         Booking booking = bookingRepository.findById(bookingId)
@@ -86,9 +73,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> getBookings(Long requesterId, String state) {
-        if (requesterId == null)
-            throw new BadRequestException("Не указан Id запрашивателя при запросе списка забронированных вещей");
+    public List<BookingDto> getBookerBookings(Long requesterId, String state) {
         userRepository.findById(requesterId)
                 .orElseThrow(() -> new NotFoundException("Нет пользователя с ID: " + requesterId));
         return getUserBookingsByState(requesterId, state).stream()
@@ -97,8 +82,6 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<BookingDto> getOwnerItemBookings(Long ownerId, String state) {
-        if (ownerId == null)
-            throw new BadRequestException("Не указан Id собственника вещей при запросе списка забронированных вещей");
         userRepository.findById(ownerId)
                 .orElseThrow(() -> new NotFoundException("Нет пользователя с ID: " + ownerId));
         List<Item> items = itemRepository.findAllByOwnerIdOrderByIdAsc(ownerId);

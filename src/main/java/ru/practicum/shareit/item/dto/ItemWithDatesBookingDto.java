@@ -5,6 +5,6 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 
 @Data
 public class ItemWithDatesBookingDto extends ItemDto {
-    BookingDto lastBooking;
-    BookingDto nextBooking;
+    private BookingDto lastBooking;
+    private BookingDto nextBooking;
 }
