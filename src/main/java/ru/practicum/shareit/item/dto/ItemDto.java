@@ -5,17 +5,19 @@ import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 public class ItemDto {
-    Long id;
+    private Long id;
     @NotBlank(message = "Название вещи не может быть пустым")
-    String name;
+    private String name;
     @NotBlank(message = "Должно быть описание вещи")
-    String description;
+    private String description;
     @NotNull
     @BooleanFlag
-    Boolean available;
-    Long ownerId;
-    Long requestId;
+    private Boolean available;
+    private List<CommentDto> comments = new ArrayList<>();
+    private Long requestId;
 }

@@ -7,10 +7,10 @@ import javax.validation.constraints.NotNull;
 
 @Data
 public class UserDto {
-    long id;
+    private long id;
     @NotNull
-    String name;
+    private String name;
     @NotNull
     @Email(message = "Передан некорректный e-mail адрес")
-    String email;
+    private String email;
 }
