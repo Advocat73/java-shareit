@@ -2,9 +2,7 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -101,7 +99,7 @@ public class BookingServiceImpl implements BookingService {
 
     private List<Booking> getUserBookingsByState(Long userId, String state, Integer from, Integer size) {
         Sort sortById = Sort.by("Id").descending();
-        int page = (from < size) ? 0 : from/size;
+        int page = (from < size) ? 0 : from / size;
         PageRequest pageRequest = PageRequest.of(page, size, sortById);
         switch (state) {
             case "ALL":
@@ -114,7 +112,7 @@ public class BookingServiceImpl implements BookingService {
             case "FUTURE":
                 return bookingRepository.findAllByBookerIdAndStartDateAfter(userId, LocalDateTime.now(), pageRequest);
             case "WAITING":
-                return bookingRepository.findAllByBookerIdAndStatus(userId, BookingStatus.WAITING, pageRequest );
+                return bookingRepository.findAllByBookerIdAndStatus(userId, BookingStatus.WAITING, pageRequest);
             case "REJECTED":
                 return bookingRepository.findAllByBookerIdAndStatus(userId, BookingStatus.REJECTED, pageRequest);
             default:
@@ -124,7 +122,7 @@ public class BookingServiceImpl implements BookingService {
 
     private List<Booking> getOwnerItemsBookingsByState(Long itemId, String state, Integer from, Integer size) {
         Sort sortById = Sort.by("Id").descending();
-        int page = (from < size) ? 0 : from/size;
+        int page = (from < size) ? 0 : from / size;
         PageRequest pageRequest = PageRequest.of(page, size, sortById);
         switch (state) {
             case "ALL":

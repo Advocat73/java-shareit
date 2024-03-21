@@ -5,9 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.dto.ItemForGetRequestDto;
 import ru.practicum.shareit.item.dto.ItemForGetRequestMapper;
@@ -24,7 +22,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ItemRequestServiceImpl implements ItemRequestService{
+public class ItemRequestServiceImpl implements ItemRequestService {
     private final ItemRequestRepository itemRequestRepository;
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
@@ -39,7 +37,7 @@ public class ItemRequestServiceImpl implements ItemRequestService{
 
     @Override
     public List<GetItemRequestDto> getRequesterItems(Long requesterId) {
-        User requester = userRepository.findById(requesterId)
+        userRepository.findById(requesterId)
                 .orElseThrow(() -> new NotFoundException("Нет пользователя с ID: " + requesterId));
         log.info("REQUESTS_СЕРВИС: Отправлен запрос к хранилищу на получение списка запросов");
         return getListGetItemRequestDtoFromListRequest(itemRequestRepository.findAllByRequesterIdOrderByCreatedDesc(requesterId));
@@ -49,7 +47,7 @@ public class ItemRequestServiceImpl implements ItemRequestService{
     public List<GetItemRequestDto> getAllItemRequestsFromIndexPageable(Long requesterId, Integer firstIndex, Integer size) {
         Sort sortByDataCreated = Sort.by("created").ascending();
         PageRequest pageRequest = PageRequest.of(firstIndex, size, sortByDataCreated);
-        User requester = userRepository.findById(requesterId)
+        userRepository.findById(requesterId)
                 .orElseThrow(() -> new NotFoundException("Нет пользователя с ID: " + requesterId));
         log.info("REQUESTS_СЕРВИС: Отправлен запрос к хранилищу на получение всех запросов постранично, {} запросов на странице", size);
         List<ItemRequest> requests = itemRequestRepository.findAllByRequesterIdNot(requesterId, pageRequest);
@@ -58,7 +56,7 @@ public class ItemRequestServiceImpl implements ItemRequestService{
 
     @Override
     public GetItemRequestDto getItemRequest(Long requesterId, Long requestId) {
-        User requester = userRepository.findById(requesterId)
+        userRepository.findById(requesterId)
                 .orElseThrow(() -> new NotFoundException("Нет пользователя с ID: " + requesterId));
         log.info("REQUESTS_СЕРВИС: Отправлен запрос к хранилищу на получение запроса с Id {}", requestId);
         ItemRequest request = itemRequestRepository.findById(requestId)
@@ -79,7 +77,7 @@ public class ItemRequestServiceImpl implements ItemRequestService{
                 .collect(Collectors.toList());
         return itemRequests.stream()
                 .map(GetItemRequestMapper::toGetItemRequestDto)
-                .peek(gir->setItemDtotListInGetItemRequestDto(gir, itemsDto))
+                .peek(gir -> setItemDtotListInGetItemRequestDto(gir, itemsDto))
                 .collect(Collectors.toList());
     }
 

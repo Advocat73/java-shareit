@@ -2,8 +2,6 @@ package ru.practicum.shareit.item.dto;
 
 import lombok.NoArgsConstructor;
 import ru.practicum.shareit.item.Item;
-import ru.practicum.shareit.request.ItemRequest;
-import ru.practicum.shareit.request.dto.GetItemRequestDto;
 
 @NoArgsConstructor
 public class ItemForGetRequestMapper {

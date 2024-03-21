@@ -64,13 +64,6 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemWithDatesBookingDto> getUserItems(Long ownerId, Integer from, Integer size) {
-        Sort sortByDataCreated = Sort.by("Huy").ascending();
-        PageRequest pageRequest;
-        try {
-            pageRequest = PageRequest.of(from, size, sortByDataCreated);
-        } catch (IllegalArgumentException e) {
-            throw new BadRequestException("Некорректные аргументы на постраничный вывод списка запросов: from: " + from + ", size: " + size);
-        }
         log.info("ITEM_СЕРВИС: Отправлен запрос к хранилищу на получение вещей пользователя с id {}", ownerId);
         return itemRepository.findAllByOwnerIdOrderByIdAsc(ownerId).stream()
                 .map(this::setLastAndNextBooking)
