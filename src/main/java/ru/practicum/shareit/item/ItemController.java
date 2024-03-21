@@ -2,6 +2,7 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -9,10 +10,12 @@ import ru.practicum.shareit.item.dto.ItemWithDatesBookingDto;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
+@Validated
 @Slf4j
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "/items")
@@ -38,9 +41,13 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemWithDatesBookingDto> getUserItems(@RequestHeader("X-Sharer-User-Id") Long ownerId) {
-        log.info("ITEM_КОНТРОЛЛЕР: GET-запрос по эндпоинту /items, X-Sharer-User-Id = {}", ownerId);
-        return itemService.getUserItems(ownerId);
+    public List<ItemWithDatesBookingDto> getUserItems(@RequestHeader("X-Sharer-User-Id") Long ownerId,
+                                                      @Valid @PositiveOrZero(message = "Индекс первой страницы не может быть отрицательным")
+                                                      @RequestParam(defaultValue = "0", required = false) Integer from,
+                                                      @Valid @Positive(message = "Количество ответов на запрос на странице должно быть положительным")
+                                                      @RequestParam(defaultValue = "1", required = false) Integer size) {
+        log.info("ITEM_КОНТРОЛЛЕР: GET-запрос по эндпоинту /items?from={}&size={}, X-Sharer-User-Id = {}", ownerId, from, size);
+        return itemService.getUserItems(ownerId, from, size);
     }
 
     @GetMapping("/{itemId}")

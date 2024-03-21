@@ -2,15 +2,18 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
+@Validated
 @Slf4j
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "/bookings")
@@ -47,16 +50,26 @@ public class BookingController {
     @GetMapping
     public List<BookingDto> getBookerBookings(@NotNull(message = "Не указан Id пользователя при запросе на получение бронирования")
                                               @RequestHeader("X-Sharer-User-Id") Long requesterId,
-                                              @RequestParam(defaultValue = "ALL", required = false) String state) {
-        log.info("BOOKING_КОНТРОЛЛЕР: GET-запрос по эндпоинту /bookings?{}, X-Sharer-User-Id = {}", state.isEmpty() ? "ALL" : state, requesterId);
-        return bookService.getBookerBookings(requesterId, state);
+                                              @RequestParam(defaultValue = "ALL", required = false) String state,
+                                              @Valid @PositiveOrZero(message = "Индекс первой страницы не может быть отрицательным")
+                                              @RequestParam(defaultValue = "0", required = false) Integer from,
+                                              @Valid @Positive(message = "Количество ответов на запрос о бронированиях на странице должно быть положительным")
+                                              @RequestParam(defaultValue = "20", required = false) Integer size) {
+        log.info("BOOKING_КОНТРОЛЛЕР: GET-запрос по эндпоинту /bookings?state={}&from={}&size={}, X-Sharer-User-Id = {}"
+                , state.isEmpty() ? "ALL" : state, from, size, requesterId);
+        return bookService.getBookerBookings(requesterId, state, from, size);
     }
 
     @GetMapping("/owner")
     public List<BookingDto> getOwnersItemBookings(@NotNull(message = "Не указан Id пользователя при запросе на получение бронирования своих вещей")
                                                   @RequestHeader("X-Sharer-User-Id") Long ownerId,
-                                                  @RequestParam(defaultValue = "ALL", required = false) String state) {
-        log.info("BOOKING_КОНТРОЛЛЕР: GET-запрос по эндпоинту /bookings/owner, X-Sharer-User-Id = {}", ownerId);
-        return bookService.getOwnerItemBookings(ownerId, state);
+                                                  @RequestParam(defaultValue = "ALL", required = false) String state,
+                                                  @Valid @PositiveOrZero(message = "Индекс первой страницы не может быть отрицательным")
+                                                  @RequestParam(defaultValue = "0", required = false) Integer from,
+                                                  @Valid @Positive(message = "Количество ответов на запрос о бронированиях на странице должно быть положительным")
+                                                  @RequestParam(defaultValue = "20", required = false) Integer size) {
+        log.info("BOOKING_КОНТРОЛЛЕР: GET-запрос по эндпоинту /bookings/owner?state={}&from={}&size={}, X-Sharer-User-Id = {}"
+                , state.isEmpty() ? "ALL" : state, from, size, ownerId);
+        return bookService.getOwnerItemBookings(ownerId, state, from, size);
     }
 }

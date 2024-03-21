@@ -2,6 +2,10 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingMapper;
@@ -73,61 +77,69 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> getBookerBookings(Long requesterId, String state) {
+    public List<BookingDto> getBookerBookings(Long requesterId, String state, Integer from, Integer size) {
         userRepository.findById(requesterId)
                 .orElseThrow(() -> new NotFoundException("Нет пользователя с ID: " + requesterId));
-        return getUserBookingsByState(requesterId, state).stream()
+        log.info("BOOKING_СЕРВИС: Отправлен запрос к хранилищу от на получения бронирований пользователя c ID {} по статусу {}", requesterId, state);
+        return getUserBookingsByState(requesterId, state, from, size).stream()
                 .map(BookingMapper::toBookingDto).collect(Collectors.toList());
     }
 
     @Override
-    public List<BookingDto> getOwnerItemBookings(Long ownerId, String state) {
+    public List<BookingDto> getOwnerItemBookings(Long ownerId, String state, Integer from, Integer size) {
         userRepository.findById(ownerId)
                 .orElseThrow(() -> new NotFoundException("Нет пользователя с ID: " + ownerId));
         List<Item> items = itemRepository.findAllByOwnerIdOrderByIdAsc(ownerId);
+        log.info("BOOKING_СЕРВИС: Отправлен запрос к хранилищу от на получения бронирований вещей пользователя c ID {}. Бронирования со статусом {}", ownerId, state);
         if (items.size() == 0)
             throw new NotFoundException("У пользователя с ID: " + ownerId + " нет вещей для бронирования");
         return items.stream()
-                .map(item -> getOwnerItemsBookingsByState(item.getId(), state))
+                .map(item -> getOwnerItemsBookingsByState(item.getId(), state, from, size))
                 .flatMap(Collection::stream)
                 .map(BookingMapper::toBookingDto).collect(Collectors.toList());
     }
 
-    private List<Booking> getUserBookingsByState(Long userId, String state) {
+    private List<Booking> getUserBookingsByState(Long userId, String state, Integer from, Integer size) {
+        Sort sortById = Sort.by("Id").descending();
+        int page = (from < size) ? 0 : from/size;
+        PageRequest pageRequest = PageRequest.of(page, size, sortById);
         switch (state) {
             case "ALL":
-                return bookingRepository.findAllByBookerIdOrderByIdDesc(userId);
+                return bookingRepository.findAllByBookerId(userId, pageRequest);
             case "CURRENT":
                 LocalDateTime localDateTime = LocalDateTime.now();
-                return bookingRepository.findAllByBookerIdAndStartDateBeforeAndEndDateAfterOrderByIdAsc(userId, localDateTime, localDateTime);
+                return bookingRepository.findAllByBookerIdAndStartDateBeforeAndEndDateAfterOrderByIdAsc(userId, localDateTime, localDateTime, pageRequest);
             case "PAST":
-                return bookingRepository.findAllByBookerIdAndEndDateBeforeOrderByIdDesc(userId, LocalDateTime.now());
+                return bookingRepository.findAllByBookerIdAndEndDateBefore(userId, LocalDateTime.now(), pageRequest);
             case "FUTURE":
-                return bookingRepository.findAllByBookerIdAndStartDateAfterOrderByIdDesc(userId, LocalDateTime.now());
+                return bookingRepository.findAllByBookerIdAndStartDateAfter(userId, LocalDateTime.now(), pageRequest);
             case "WAITING":
-                return bookingRepository.findAllByBookerIdAndStatusOrderByIdDesc(userId, BookingStatus.WAITING);
+                return bookingRepository.findAllByBookerIdAndStatus(userId, BookingStatus.WAITING, pageRequest );
             case "REJECTED":
-                return bookingRepository.findAllByBookerIdAndStatusOrderByIdDesc(userId, BookingStatus.REJECTED);
+                return bookingRepository.findAllByBookerIdAndStatus(userId, BookingStatus.REJECTED, pageRequest);
             default:
                 throw new BadRequestException("Unknown state: " + state);
         }
     }
 
-    private List<Booking> getOwnerItemsBookingsByState(Long itemId, String state) {
+    private List<Booking> getOwnerItemsBookingsByState(Long itemId, String state, Integer from, Integer size) {
+        Sort sortById = Sort.by("Id").descending();
+        int page = (from < size) ? 0 : from/size;
+        PageRequest pageRequest = PageRequest.of(page, size, sortById);
         switch (state) {
             case "ALL":
-                return bookingRepository.findAllByItemIdOrderByIdDesc(itemId);
+                return bookingRepository.findAllByItemIdOrderByIdDesc(itemId, pageRequest);
             case "CURRENT":
                 LocalDateTime localDateTime = LocalDateTime.now();
-                return bookingRepository.findAllByItemIdAndStartDateBeforeAndEndDateAfterOrderByIdDesc(itemId, localDateTime, localDateTime);
+                return bookingRepository.findAllByItemIdAndStartDateBeforeAndEndDateAfterOrderByIdDesc(itemId, localDateTime, localDateTime, pageRequest);
             case "PAST":
-                return bookingRepository.findAllByItemIdAndEndDateBeforeOrderByIdDesc(itemId, LocalDateTime.now());
+                return bookingRepository.findAllByItemIdAndEndDateBeforeOrderByIdDesc(itemId, LocalDateTime.now(), pageRequest);
             case "FUTURE":
-                return bookingRepository.findAllByItemIdAndStartDateAfterOrderByIdDesc(itemId, LocalDateTime.now());
+                return bookingRepository.findAllByItemIdAndStartDateAfterOrderByIdDesc(itemId, LocalDateTime.now(), pageRequest);
             case "WAITING":
-                return bookingRepository.findAllByItemIdAndStatusOrderByIdDesc(itemId, BookingStatus.WAITING);
+                return bookingRepository.findAllByItemIdAndStatusOrderByIdDesc(itemId, BookingStatus.WAITING, pageRequest);
             case "REJECTED":
-                return bookingRepository.findAllByItemIdAndStatusOrderByIdDesc(itemId, BookingStatus.REJECTED);
+                return bookingRepository.findAllByItemIdAndStatusOrderByIdDesc(itemId, BookingStatus.REJECTED, pageRequest);
             default:
                 throw new BadRequestException("Unknown state: " + state);
         }

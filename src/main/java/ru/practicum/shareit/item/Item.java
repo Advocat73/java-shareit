@@ -2,6 +2,7 @@ package ru.practicum.shareit.item;
 
 import jdk.jfr.BooleanFlag;
 import lombok.Data;
+import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.user.User;
 
 import javax.persistence.*;
@@ -26,4 +27,7 @@ public class Item {
     @ManyToOne
     @JoinColumn(name = "owner_id")
     User owner;
+    @ManyToOne
+    @JoinColumn(name = "request_id")
+    ItemRequest request;
 }
