@@ -28,7 +28,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     private final UserRepository userRepository;
 
     @Override
-    public ItemRequestDto addNewItem(Long requesterId, ItemRequestDto itemRequestDto) {
+    public ItemRequestDto addNewRequestItem(Long requesterId, ItemRequestDto itemRequestDto) {
         User requester = userRepository.findById(requesterId)
                 .orElseThrow(() -> new NotFoundException("Нет пользователя с ID: " + requesterId));
         log.info("REQUESTS_СЕРВИС: Отправлен запрос к хранилищу на добавление запроса");

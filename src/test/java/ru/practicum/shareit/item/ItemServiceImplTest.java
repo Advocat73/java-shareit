@@ -93,6 +93,15 @@ class ItemServiceImplTest {
 
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
+    void addNewItemThrowsNotFoundExceptionForNotExistRequest() {
+        when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
+        itemDto.setRequestId(1000L);
+        NotFoundException e = assertThrows(NotFoundException.class, () -> itemService.addNewItem(USER1_ID_FOR_TEST, itemDto));
+        assertEquals("Нет запроса с ID: 1000", e.getMessage());
+    }
+
+    @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
+    @Test
     void addNewItemNotSuccess() {
         when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
         assertNull(itemService.addNewItem(USER1_ID_FOR_TEST, itemDto));
@@ -116,10 +125,13 @@ class ItemServiceImplTest {
 
         ItemDto itemDtoUpd = new ItemDto();
         itemDtoUpd.setName("Штука");
+        itemDtoUpd.setDescription("Description");
+        itemDtoUpd.setAvailable(false);
         ItemDto itemDtoReceive = itemService.updateItem(USER1_ID_FOR_TEST, itemDtoUpd, ITEM1_ID_FOR_TEST);
         assertEquals(ITEM1_ID_FOR_TEST, itemDtoReceive.getId());
         assertEquals("Штука", itemDtoReceive.getName());
-        assertEquals("Очень нужная вещь", itemDtoReceive.getDescription());
+        assertEquals("Description", itemDtoReceive.getDescription());
+        assertFalse(itemDtoReceive.getAvailable());
     }
 
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
@@ -276,6 +288,23 @@ class ItemServiceImplTest {
         item.setId(ITEM1_ID_FOR_TEST);
         when(itemRepository.findById(ITEM1_ID_FOR_TEST)).thenReturn(Optional.of(item));
         itemService.deleteItem(USER1_ID_FOR_TEST, ITEM1_ID_FOR_TEST);
+    }
+
+    @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
+    @Test
+    void searchItemBySubstring() {
+        Item item = ItemMapper.fromItemDto(itemDto, user);
+        when(itemRepository.searchItemBySubtring(anyString())).thenReturn(List.of(item));
+        List<ItemDto> itemDtos = itemService.searchItemBySubstring("ещь");
+        assertEquals(1, itemDtos.size());
+    }
+
+    @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
+    @Test
+    void searchItemBySubstringBlank() {
+        Item item = ItemMapper.fromItemDto(itemDto, user);
+        List<ItemDto> itemDtos = itemService.searchItemBySubstring("");
+        assertEquals(0, itemDtos.size());
     }
 
     @Test

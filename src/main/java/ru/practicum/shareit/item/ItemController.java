@@ -64,7 +64,7 @@ public class ItemController {
                                                @RequestHeader("X-Sharer-User-Id") Long userId,
                                                @NotNull(message = "Не указан текст для поиска при запросе на поиск вещи")
                                                @RequestParam String text) {
-        log.info("ITEM_КОНТРОЛЛЕР: SEARCH-запрос по эндпоинту /items/search?{}, X-Sharer-User-Id = {}", text, userId);
+        log.info("ITEM_КОНТРОЛЛЕР: SEARCH-запрос по эндпоинту /items/search?text={}, X-Sharer-User-Id = {}", text, userId);
         return itemService.searchItemBySubstring(text);
     }
 

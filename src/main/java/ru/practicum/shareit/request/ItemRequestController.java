@@ -22,11 +22,11 @@ public class ItemRequestController {
     private final ItemRequestService requestService;
 
     @PostMapping
-    public ItemRequestDto addNewUser(@NotNull(message = "Не указан Id пользователя при запросе на поиск вещи")
+    public ItemRequestDto addNewRequestItem(@NotNull(message = "Не указан Id пользователя при запросе на поиск вещи")
                                      @RequestHeader("X-Sharer-User-Id") Long requesterId,
                                      @Valid @RequestBody ItemRequestDto itemRequestDto) {
         log.info("REQUESTS_КОНТРОЛЛЕР: POST-запрос по эндпоинту /requests");
-        return requestService.addNewItem(requesterId, itemRequestDto);
+        return requestService.addNewRequestItem(requesterId, itemRequestDto);
     }
 
     @GetMapping
@@ -49,9 +49,7 @@ public class ItemRequestController {
 
 
     @GetMapping("/{requestId}")
-    public GetItemRequestDto getItemRequestByRequestId(//@NotNull(message = "Не указан Id пользователя при запросе на поиск всех запросов")
-                                                       @RequestHeader("X-Sharer-User-Id") Long requesterId,
-                                                       //@NotNull(message = "Не указан Id запроса на получение вещи")
+    public GetItemRequestDto getItemRequestByRequestId(@RequestHeader("X-Sharer-User-Id") Long requesterId,
                                                        @PathVariable Long requestId) {
         log.info("REQUESTS_КОНТРОЛЛЕР: GET-запрос по эндпоинту /requests/{}", requestId);
         return requestService.getItemRequest(requesterId, requestId);

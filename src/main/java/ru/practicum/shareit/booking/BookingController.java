@@ -61,7 +61,7 @@ public class BookingController {
     }
 
     @GetMapping("/owner")
-    public List<BookingDto> getOwnersItemBookings(@NotNull(message = "Не указан Id пользователя при запросе на получение бронирования своих вещей")
+    public List<BookingDto> getOwnerItemBookings(@NotNull(message = "Не указан Id пользователя при запросе на получение бронирования своих вещей")
                                                   @RequestHeader("X-Sharer-User-Id") Long ownerId,
                                                   @RequestParam(defaultValue = "ALL", required = false) String state,
                                                   @Valid @PositiveOrZero(message = "Индекс первой страницы не может быть отрицательным")
