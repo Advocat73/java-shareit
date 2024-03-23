@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 import org.springframework.test.annotation.DirtiesContext;
@@ -22,8 +21,6 @@ import ru.practicum.shareit.request.ItemRequestRepository;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -287,7 +284,8 @@ class ItemServiceImplTest {
         item.setId(ITEM1_ID_FOR_TEST);
         CommentDto commentDto = new CommentDto();
         commentDto.setText("Комментарий для addNewComment");
-        commentDto.setAuthorName("Petya");commentDto.setCreated(LocalDateTime.now());
+        commentDto.setAuthorName("Petya");
+        commentDto.setCreated(LocalDateTime.now());
         when(bookingRepository.findFirstByItemIdAndBookerIdAndStatusAndEndDateBefore(any(), any(), any(), any()))
                 .thenReturn(Optional.of(new Booking()));
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));

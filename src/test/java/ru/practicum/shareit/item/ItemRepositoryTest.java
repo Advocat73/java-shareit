@@ -19,7 +19,6 @@ class ItemRepositoryTest {
     @Autowired
     private UserRepository userRepository;
 
-
     User user;
     Long userId;
 
@@ -45,7 +44,7 @@ class ItemRepositoryTest {
         item2.setDescription("Всем нужна такая");
         item2.setOwner(user);
         item2.setAvailable(true);
-        item2 = itemRepository.save(item2);
+        itemRepository.save(item2);
 
         List<Item> items = itemRepository.searchItemBySubtring("ещь");
         assertEquals(1, items.size());
