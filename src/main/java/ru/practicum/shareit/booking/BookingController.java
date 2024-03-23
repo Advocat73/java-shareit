@@ -55,8 +55,8 @@ public class BookingController {
                                               @RequestParam(defaultValue = "0", required = false) Integer from,
                                               @Valid @Positive(message = "Количество ответов на запрос о бронированиях на странице должно быть положительным")
                                               @RequestParam(defaultValue = "20", required = false) Integer size) {
-        log.info("BOOKING_КОНТРОЛЛЕР: GET-запрос по эндпоинту /bookings?state={}&from={}&size={}, X-Sharer-User-Id = {}"
-                , state.isEmpty() ? "ALL" : state, from, size, requesterId);
+        log.info("BOOKING_КОНТРОЛЛЕР: GET-запрос по эндпоинту /bookings?state={}&from={}&size={}, X-Sharer-User-Id = {}",
+                state.isEmpty() ? "ALL" : state, from, size, requesterId);
         return bookService.getBookerBookings(requesterId, state, from, size);
     }
 
@@ -68,8 +68,8 @@ public class BookingController {
                                                   @RequestParam(defaultValue = "0", required = false) Integer from,
                                                   @Valid @Positive(message = "Количество ответов на запрос о бронированиях на странице должно быть положительным")
                                                   @RequestParam(defaultValue = "20", required = false) Integer size) {
-        log.info("BOOKING_КОНТРОЛЛЕР: GET-запрос по эндпоинту /bookings/owner?state={}&from={}&size={}, X-Sharer-User-Id = {}"
-                , state.isEmpty() ? "ALL" : state, from, size, ownerId);
+        log.info("BOOKING_КОНТРОЛЛЕР: GET-запрос по эндпоинту /bookings/owner?state={}&from={}&size={}, X-Sharer-User-Id = {}",
+                state.isEmpty() ? "ALL" : state, from, size, ownerId);
         return bookService.getOwnerItemBookings(ownerId, state, from, size);
     }
 }
