@@ -84,7 +84,7 @@ public class ItemServiceImpl implements ItemService {
         if (subStr.isEmpty())
             return List.of();
         log.info("ITEM_СЕРВИС: Отправлен запрос к хранилищу на поиск вещи, содержащей текст {}", subStr);
-        return itemRepository.searchItemBySustring(subStr).stream().map(ItemMapper::toItemDto).collect(Collectors.toList());
+        return itemRepository.searchItemBySubtring(subStr).stream().map(ItemMapper::toItemDto).collect(Collectors.toList());
     }
 
     @Override
