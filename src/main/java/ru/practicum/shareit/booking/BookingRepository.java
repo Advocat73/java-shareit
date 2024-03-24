@@ -10,15 +10,15 @@ import java.util.Optional;
 public interface BookingRepository extends JpaRepository<Booking, Long> {
     Optional<Booking> findFirstByItemIdAndBookerIdAndStatusAndEndDateBefore(Long itemId, Long bookerId, BookingStatus status, LocalDateTime currentTime);
 
-    List<Booking> findAllByItemIdOrderByIdDesc(Long itemId, PageRequest pageRequest);
+    List<Booking> findAllByItemId(Long itemId, PageRequest pageRequest);
 
-    List<Booking> findAllByItemIdAndStatusOrderByIdDesc(Long itemId, BookingStatus status, PageRequest pageRequest);
+    List<Booking> findAllByItemIdAndStatus(Long itemId, BookingStatus status, PageRequest pageRequest);
 
-    List<Booking> findAllByItemIdAndEndDateBeforeOrderByIdDesc(Long itemId, LocalDateTime currentTime, PageRequest pageRequest);
+    List<Booking> findAllByItemIdAndEndDateBefore(Long itemId, LocalDateTime currentTime, PageRequest pageRequest);
 
-    List<Booking> findAllByItemIdAndStartDateAfterOrderByIdDesc(Long itemId, LocalDateTime currentTime, PageRequest pageRequest);
+    List<Booking> findAllByItemIdAndStartDateAfter(Long itemId, LocalDateTime currentTime, PageRequest pageRequest);
 
-    List<Booking> findAllByItemIdAndStartDateBeforeAndEndDateAfterOrderByIdDesc(Long itemId, LocalDateTime curTime, LocalDateTime currentTime, PageRequest pageRequest);
+    List<Booking> findAllByItemIdAndStartDateBeforeAndEndDateAfter(Long itemId, LocalDateTime curTime, LocalDateTime currentTime, PageRequest pageRequest);
 
     List<Booking> findAllByItemIdAndStartDateBeforeAndStatusNotOrderByStartDateDesc(Long itemId, LocalDateTime currentTime, BookingStatus status);
 

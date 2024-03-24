@@ -9,6 +9,8 @@ import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.user.User;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @NoArgsConstructor
 public class BookingMapper {
@@ -19,6 +21,7 @@ public class BookingMapper {
         BookingDto bookingDto = new BookingDto();
         bookingDto.setId(booking.getId());
         bookingDto.setBookerId(booking.getBooker().getId());
+        bookingDto.setItemId(booking.getItem().getId());
         bookingDto.setStart(booking.getStartDate());
         bookingDto.setEnd(booking.getEndDate());
         bookingDto.setStatus(booking.getStatus().toString());
@@ -31,17 +34,25 @@ public class BookingMapper {
         if (bookingDto == null)
             return null;
         if (bookingDto.getEnd().isBefore(bookingDto.getStart()) || bookingDto.getStart().isEqual(bookingDto.getEnd()))
-            throw new BadRequestException("При запросе на бронирование вещи с Id " +  bookingDto.getItemId() + " даты бронирования указаны не валидно");
-        if (bookingDto.getStart().isBefore(LocalDateTime.now()))
-            throw new BadRequestException("При запросе на бронирование вещи с Id " +  bookingDto.getItemId() + " даты бронирования указаны не валидно");
+            throw new BadRequestException("При запросе на бронирование вещи с Id " + bookingDto.getItemId() + " даты бронирования указаны не валидно");
+        if (bookingDto.getStart().isBefore(LocalDateTime.now()) && status == BookingStatus.WAITING)
+            throw new BadRequestException("При запросе на бронирование вещи с Id " + bookingDto.getItemId() + " даты бронирования указаны не валидно");
 
         Booking booking = new Booking();
+        booking.setId(bookingDto.getId());
         booking.setStartDate(bookingDto.getStart());
         booking.setEndDate(bookingDto.getEnd());
         booking.setStatus(status);
         booking.setBooker(booker);
         booking.setItem(item);
         return booking;
+    }
+
+    public static List<BookingDto> toBookingDto(List<Booking> bookings) {
+        List<BookingDto> dtos = new ArrayList<>();
+        for (Booking booking : bookings)
+            dtos.add(toBookingDto(booking));
+        return dtos;
     }
 }
 

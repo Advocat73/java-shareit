@@ -4,8 +4,6 @@ import lombok.NoArgsConstructor;
 import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.user.User;
 
-import java.time.LocalDateTime;
-
 @NoArgsConstructor
 public class ItemRequestMapper {
     public static ItemRequestDto toItemRequestDto(ItemRequest itemRequest) {
@@ -22,9 +20,10 @@ public class ItemRequestMapper {
         if (itemRequestDto == null)
             return null;
         ItemRequest itemRequest = new ItemRequest();
+        itemRequest.setId(itemRequestDto.getId());
         itemRequest.setDescription(itemRequestDto.getDescription());
         itemRequest.setRequester(requester);
-        itemRequest.setCreated(LocalDateTime.now());
+        itemRequest.setCreated(itemRequestDto.getCreated());
         return itemRequest;
     }
 }

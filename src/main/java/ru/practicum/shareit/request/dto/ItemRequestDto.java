@@ -10,5 +10,5 @@ public class ItemRequestDto {
     Long id;
     @NotBlank(message = "Должно быть описание запроса")
     private String description; //текст запроса, содержащий описание требуемой вещи
-    private LocalDateTime created; //дата и время создания запроса
+    private LocalDateTime created = LocalDateTime.now(); //дата и время создания запроса
 }

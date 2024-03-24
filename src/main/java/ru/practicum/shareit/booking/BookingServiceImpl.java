@@ -16,6 +16,7 @@ import ru.practicum.shareit.user.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -79,8 +80,7 @@ public class BookingServiceImpl implements BookingService {
         userRepository.findById(requesterId)
                 .orElseThrow(() -> new NotFoundException("Нет пользователя с ID: " + requesterId));
         log.info("BOOKING_СЕРВИС: Отправлен запрос к хранилищу от на получения бронирований пользователя c ID {} по статусу {}", requesterId, state);
-        return getUserBookingsByState(requesterId, state, from, size).stream()
-                .map(BookingMapper::toBookingDto).collect(Collectors.toList());
+        return BookingMapper.toBookingDto(getUserBookingsByState(requesterId, state, from, size));
     }
 
     @Override
@@ -93,7 +93,7 @@ public class BookingServiceImpl implements BookingService {
             throw new NotFoundException("У пользователя с ID: " + ownerId + " нет вещей для бронирования");
         return items.stream()
                 .map(item -> getOwnerItemsBookingsByState(item.getId(), state, from, size))
-                .flatMap(Collection::stream)
+                .flatMap(Collection::stream).sorted(Comparator.comparingLong(Booking::getId).reversed())
                 .map(BookingMapper::toBookingDto).collect(Collectors.toList());
     }
 
@@ -126,18 +126,18 @@ public class BookingServiceImpl implements BookingService {
         PageRequest pageRequest = PageRequest.of(page, size, sortById);
         switch (state) {
             case "ALL":
-                return bookingRepository.findAllByItemIdOrderByIdDesc(itemId, pageRequest);
+                return bookingRepository.findAllByItemId(itemId, pageRequest);
             case "CURRENT":
                 LocalDateTime localDateTime = LocalDateTime.now();
-                return bookingRepository.findAllByItemIdAndStartDateBeforeAndEndDateAfterOrderByIdDesc(itemId, localDateTime, localDateTime, pageRequest);
+                return bookingRepository.findAllByItemIdAndStartDateBeforeAndEndDateAfter(itemId, localDateTime, localDateTime, pageRequest);
             case "PAST":
-                return bookingRepository.findAllByItemIdAndEndDateBeforeOrderByIdDesc(itemId, LocalDateTime.now(), pageRequest);
+                return bookingRepository.findAllByItemIdAndEndDateBefore(itemId, LocalDateTime.now(), pageRequest);
             case "FUTURE":
-                return bookingRepository.findAllByItemIdAndStartDateAfterOrderByIdDesc(itemId, LocalDateTime.now(), pageRequest);
+                return bookingRepository.findAllByItemIdAndStartDateAfter(itemId, LocalDateTime.now(), pageRequest);
             case "WAITING":
-                return bookingRepository.findAllByItemIdAndStatusOrderByIdDesc(itemId, BookingStatus.WAITING, pageRequest);
+                return bookingRepository.findAllByItemIdAndStatus(itemId, BookingStatus.WAITING, pageRequest);
             case "REJECTED":
-                return bookingRepository.findAllByItemIdAndStatusOrderByIdDesc(itemId, BookingStatus.REJECTED, pageRequest);
+                return bookingRepository.findAllByItemIdAndStatus(itemId, BookingStatus.REJECTED, pageRequest);
             default:
                 throw new BadRequestException("Unknown state: " + state);
         }
