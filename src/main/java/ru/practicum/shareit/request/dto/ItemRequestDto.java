@@ -9,6 +9,6 @@ import java.time.LocalDateTime;
 public class ItemRequestDto {
     Long id;
     @NotBlank(message = "Должно быть описание запроса")
-    private String description; //текст запроса, содержащий описание требуемой вещи
-    private LocalDateTime created = LocalDateTime.now(); //дата и время создания запроса
+    private String description;
+    private LocalDateTime created = LocalDateTime.now();
 }

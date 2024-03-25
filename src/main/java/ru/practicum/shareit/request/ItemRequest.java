@@ -18,14 +18,14 @@ import java.time.LocalDateTime;
 public class ItemRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; //уникальный идентификатор запроса
+    private Long id;
     @NotBlank(message = "Должно быть описание запроса")
-    private String description; //текст запроса, содержащий описание требуемой вещи
+    private String description;
     @NotNull
     @ManyToOne
     @JoinColumn(name = "requester_id")
-    private User requester; //пользователь, создавший запрос
+    private User requester;
     @NotNull
     @Column(name = "created_date")
-    private LocalDateTime created; //дата и время создания запроса
+    private LocalDateTime created;
 }
