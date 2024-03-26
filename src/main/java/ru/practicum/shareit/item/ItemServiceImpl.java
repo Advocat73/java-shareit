@@ -11,6 +11,8 @@ import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.DataConflictException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.*;
+import ru.practicum.shareit.request.ItemRequest;
+import ru.practicum.shareit.request.ItemRequestRepository;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 
@@ -23,6 +25,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
+    private final ItemRequestRepository itemRequestRepository;
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
@@ -32,6 +35,11 @@ public class ItemServiceImpl implements ItemService {
         User owner = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Нет пользователя с ID: " + userId));
         log.info("ITEM_СЕРВИС: Отправлен запрос к хранилищу от пользователя с id {} на добавление новой вещи", userId);
         Item item = ItemMapper.fromItemDto(itemDto, owner);
+        if (itemDto.getRequestId() != null) {
+            ItemRequest request = itemRequestRepository.findById(itemDto.getRequestId())
+                    .orElseThrow(() -> new NotFoundException("Нет запроса с ID: " + itemDto.getRequestId()));
+            item.setRequest(request);
+        }
         return addItem(item);
     }
 
@@ -53,7 +61,7 @@ public class ItemServiceImpl implements ItemService {
 
 
     @Override
-    public List<ItemWithDatesBookingDto> getUserItems(Long ownerId) {
+    public List<ItemWithDatesBookingDto> getUserItems(Long ownerId, Integer from, Integer size) {
         log.info("ITEM_СЕРВИС: Отправлен запрос к хранилищу на получение вещей пользователя с id {}", ownerId);
         return itemRepository.findAllByOwnerIdOrderByIdAsc(ownerId).stream()
                 .map(this::setLastAndNextBooking)
@@ -76,7 +84,7 @@ public class ItemServiceImpl implements ItemService {
         if (subStr.isEmpty())
             return List.of();
         log.info("ITEM_СЕРВИС: Отправлен запрос к хранилищу на поиск вещи, содержащей текст {}", subStr);
-        return itemRepository.searchItemBySustring(subStr).stream().map(ItemMapper::toItemDto).collect(Collectors.toList());
+        return itemRepository.searchItemBySubtring(subStr).stream().map(ItemMapper::toItemDto).collect(Collectors.toList());
     }
 
     @Override
