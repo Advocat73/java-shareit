@@ -5,8 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDto;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Slf4j
@@ -17,14 +15,13 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public UserDto addNewUser(@Valid @RequestBody UserDto userDto) {
+    public UserDto addNewUser(@RequestBody UserDto userDto) {
         log.info("USER_КОНТРОЛЛЕР: POST-запрос по эндпоинту /users");
         return userService.addNewUser(userDto);
     }
 
     @PatchMapping("/{userId}")
     public UserDto updateUser(@RequestBody UserDto userDto,
-                              @NotNull(message = "Не указан Id пользователя при запросе на изменение данных")
                               @PathVariable Long userId) {
         log.info("USER_КОНТРОЛЛЕР: PATCH-запрос по эндпоинту /users/{}", userId);
         return userService.updateUser(userDto, userId);
@@ -37,8 +34,7 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public UserDto getUser(@NotNull(message = "Не указан Id пользователя при запросе данных пользователя")
-                           @PathVariable Long userId) {
+    public UserDto getUser(@PathVariable Long userId) {
         log.info("USER_КОНТРОЛЛЕР: GET-запрос по эндпоинту /users/{}", userId);
         return userService.getUser(userId);
     }

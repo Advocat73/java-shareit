@@ -7,6 +7,8 @@ import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.dto.UserMapper;
+import ru.practicum.shareit.user.dto.UserMapperImpl;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -17,7 +19,7 @@ public class BookingMapper {
     public static BookingDto toBookingDto(Booking booking) {
         if (booking == null)
             return null;
-
+        UserMapper userMapper = new UserMapperImpl();
         BookingDto bookingDto = new BookingDto();
         bookingDto.setId(booking.getId());
         bookingDto.setBookerId(booking.getBooker().getId());
@@ -25,7 +27,7 @@ public class BookingMapper {
         bookingDto.setStart(booking.getStartDate());
         bookingDto.setEnd(booking.getEndDate());
         bookingDto.setStatus(booking.getStatus().toString());
-        bookingDto.setBooker(booking.getBooker());
+        bookingDto.setBooker(userMapper.toUserDto(booking.getBooker()));
         bookingDto.setItem(ItemMapper.toItemDto(booking.getItem()));
         return bookingDto;
     }
