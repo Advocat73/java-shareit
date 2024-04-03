@@ -40,6 +40,7 @@ public class ItemClient extends BaseClient {
                 "from", from,
                 "size", size
         );
+        ResponseEntity<Object> entity = get("?from={from}&size={size}", ownerId, parameters);
         return get("?from={from}&size={size}", ownerId, parameters);
     }
 
